@@ -6,13 +6,13 @@ from pydantic import BaseModel, EmailStr
 class BaseImage(BaseModel):
     id: int
     image_url: str
-    status: Optional[str] = None
+    status: Optional[bool] = None
     user_id: int
 
 
 class AddImage(BaseModel):
     image_url: str
-    status: Optional[str] = None
+    status: Optional[bool] = None
 
 
 class OriginalImage(BaseImage):

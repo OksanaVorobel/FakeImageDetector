@@ -1,3 +1,6 @@
+import os
+
+import keras
 from PIL import Image, ImageChops, ImageEnhance
 
 from app.core.config import model_config
@@ -21,6 +24,10 @@ def convert_to_ela_image(filename, quality=90):
     im.close()
     bm.close()
     resaved_im.close()
-
-    ela_im.resize((model_config.img_height, model_config.img_width), resample=Image.LANCZOS)
     return ela_im
+
+
+def load_fake_detection_model():
+    if os.path.exists(f"./cnn_model/{model_config.cnn_model_file_name}"):
+        return keras.models.load_model(f"./cnn_model/{model_config.cnn_model_file_name}")
+    return None

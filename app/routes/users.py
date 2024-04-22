@@ -11,14 +11,14 @@ from app.repositories.dependencies import users_service
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.post("/sing_up", response_model=AuthRequest, status_code=status.HTTP_201_CREATED)
+@router.post("/sing_up", response_model=AuthRequest, status_code=status.HTTP_200_OK)
 async def sing_up(
         data: SignUpRequest,
         service: UsersService = Depends(users_service)
 ):
-    data.password = auth_service.get_password_hash(data.password)
-    user = await service.add_user(data)
-    return f"User id:{user}"
+    data.password = auth_service.hash_password(data.password)
+    user_id = await service.add_user(data)
+    return {"user_id": user_id, **auth_service.create_tokens(data.email)}
 
 
 @router.post("/sing_in", response_model=AuthRequest, status_code=status.HTTP_200_OK)

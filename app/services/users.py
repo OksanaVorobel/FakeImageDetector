@@ -36,4 +36,4 @@ class UsersService:
         await self.users_repo.delete_by_id(user_id)
 
     async def find_user_by_email(self, email: str):
-        return await self.users_repo.find_by_filter({"user_email": email})
+        return await self.users_repo.find_by_filter({"email": email})

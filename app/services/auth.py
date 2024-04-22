@@ -46,11 +46,22 @@ class AuthService:
             users_service: UsersService = Depends(users_service)
     ) -> User:
         decoded_token = self.decode_token(token)
+        if not decoded_token:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
-        user = await users_service.find_user_by_email(decoded_token.get("email"))
+        user = await users_service.find_user_by_email(decoded_token.get("sub"))
         if not user:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
         return user
+
+    def create_tokens(self, email: str) -> dict:
+        access_token = self.encode_token(
+            payload={"sub": email}, exp=app_config.access_token_expire_minutes
+        )
+        refresh_token = self.encode_token(
+            payload={"sub": email}, exp=app_config.refresh_token_expire_minutes
+        )
+        return {"access_token": access_token, "refresh_token": refresh_token}
 
     async def sing_in(
             self, data: OAuth2PasswordRequestForm = Depends(),
@@ -61,13 +72,8 @@ class AuthService:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
         if not self.verify_password(data.password, user.password):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-        access_token = self.encode_token(
-            payload={"sub": user.email}, exp=app_config.access_token_expire_minutes
-        )
-        refresh_token = self.encode_token(
-            payload={"sub": user.email}, exp=app_config.refresh_token_expire_minutes
-        )
-        return {"access_token": access_token, "refresh_token": refresh_token}
+
+        return {"user_id": user.id, **self.create_tokens(user.email)}
 
 
 auth_service = AuthService()

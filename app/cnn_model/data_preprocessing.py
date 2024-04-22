@@ -4,6 +4,7 @@ import os
 import cv2
 import numpy as np
 import pandas as pd
+from PIL import Image
 from tqdm import tqdm
 from pylab import array
 from keras.utils import to_categorical
@@ -11,8 +12,8 @@ from keras.utils import to_categorical
 from app.core.config import model_config
 from app.utils.utils import convert_to_ela_image
 
-path_original = '../../CASIA2/Au/'
-path_tampered = '../../CASIA2/Tp/'
+path_original = './CASIA2/Au/'
+path_tampered = './CASIA2/Tp/'
 
 total_original = os.listdir(path_original)
 total_tampered = os.listdir(path_tampered)
@@ -59,16 +60,19 @@ def convert_origin_image(path):
     return normalized_image
 
 def get_ela_split_data() -> tuple[np.array, np.array]:
-    if os.path.exists("../../ela_pixel_value_array_120.npy") and os.path.exists("../../ela_label_120.npy"):
+    if os.path.exists("./cnn_model/ela_values.npy") and os.path.exists("./cnn_model/ela_labels.npy"):
         logging.info("loading dataset...")
-        XX = np.load("../../ela_pixel_value_array_120.npy")
-        YY = np.load("../../ela_label_120.npy")
+        XX = np.load("./cnn_model/ela_values.npy")
+        YY = np.load("./cnn_model/ela_labels.npy")
     else:
         logging.info("Image arrays could not be found, creating new ones...")
         X = []
         Y = []
         for index, row in tqdm(dataset.iterrows()):
-            X.append(array(convert_to_ela_image(row[0], 90)).flatten() / 255.0)
+            X.append(array(
+                convert_to_ela_image(row[0], 90)
+                .resize((model_config.img_height, model_config.img_width), resample=Image.LANCZOS)
+            ).flatten() / 255.0)
             Y.append(row[1])
 
         XX = np.array(X)
@@ -77,8 +81,8 @@ def get_ela_split_data() -> tuple[np.array, np.array]:
         del X
         del Y
 
-        np.save("ela_pixel_value_array_120", XX)
-        np.save("ela_label_120", YY)
+        np.save("cnn_model/ela_values", XX)
+        np.save("cnn_model/ela_labels", YY)
 
     return XX, YY
 
@@ -90,9 +94,9 @@ def get_origin_split_data():
         X.append(convert_origin_image(row[0]))
         Y.append(row[1])
 
-    if os.path.exists("./original_pixel_value_array_120") and os.path.exists("./original_label_120"):
-        XX = np.load("original_pixel_value_array_120.npy")
-        YY = np.load("original_label_120.npy")
+    if os.path.exists("./cnn_model/original_values") and os.path.exists("./cnn_model/original_labels"):
+        XX = np.load("./cnn_model/original_values.npy")
+        YY = np.load("./cnn_model/original_labels.npy")
     else:
         X = []
         Y = []
@@ -106,15 +110,15 @@ def get_origin_split_data():
         del X
         del Y
 
-        np.save("original_pixel_value_array_120", XX)
-        np.save("original_label_120", YY)
+        np.save("cnn_model/original_values", XX)
+        np.save("cnn_model/original_labels", YY)
 
     return XX, YY
 
 
 def create_dataset():
-    if os.path.exists("../../dataset_CASIA2.csv"):
-        dataset = pd.read_csv('../../dataset_CASIA2.csv')
+    if os.path.exists("./dataset_CASIA2.csv"):
+        dataset = pd.read_csv('./dataset_CASIA2.csv')
     else:
         images = get_all_images()
         image_name = []

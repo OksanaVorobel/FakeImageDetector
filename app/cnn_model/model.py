@@ -1,12 +1,10 @@
-import os
-
-import keras
 import tensorflow as tf
 from tensorflow.keras import layers
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPool2D
 
 from app.core.config import model_config
+from app.utils.utils import load_fake_detection_model
 
 
 def scheduler(epoch, lr):
@@ -37,8 +35,8 @@ data_augmentation = tf.keras.Sequential(
 
 
 def get_model():
-    if os.path.exists(f'./{model_config.model_file_name}'):
-        return keras.models.load_model(f'./{model_config.model_file_name}')
+    if cnn := load_fake_detection_model():
+        return cnn
 
     cnn = Sequential()
     cnn.add(

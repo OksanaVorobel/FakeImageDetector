@@ -1,9 +1,13 @@
+asyncpg==0.29.0
+bcrypt==4.1.2
 dotenv==0.0.4
+email-validator==2.1.1
 fastapi==0.110.2
 passlib==1.7.4
 pydantic==2.7.0
 pydantic-settings==2.2.1
 python-dotenv==1.0.1
+python-multipart==0.0.9
 pyjwt==2.8.0
 sqlalchemy==2.0.29
 uvicorn==0.29.0
