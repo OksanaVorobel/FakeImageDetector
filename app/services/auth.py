@@ -16,7 +16,7 @@ from app.repositories.dependencies import users_service
 class AuthService:
     SECRET_KEY = app_config.secret_key
     JWT_ALGORITHM = app_config.hash_algorithm
-    oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/sing_in")
+    oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/sign_in")
 
     @staticmethod
     def hash_password(password: str) -> str:
@@ -63,7 +63,7 @@ class AuthService:
         )
         return {"access_token": access_token, "refresh_token": refresh_token}
 
-    async def sing_in(
+    async def sign_in(
             self, data: OAuth2PasswordRequestForm = Depends(),
             users_service: UsersService = Depends(users_service)
     ) -> dict:

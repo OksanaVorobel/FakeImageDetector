@@ -11,8 +11,8 @@ from app.repositories.dependencies import users_service
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.post("/sing_up", response_model=AuthRequest, status_code=status.HTTP_200_OK)
-async def sing_up(
+@router.post("/sign_up", response_model=AuthRequest, status_code=status.HTTP_200_OK)
+async def sign_up(
         data: SignUpRequest,
         service: UsersService = Depends(users_service)
 ):
@@ -21,16 +21,16 @@ async def sing_up(
     return {"user_id": user_id, **auth_service.create_tokens(data.email)}
 
 
-@router.post("/sing_in", response_model=AuthRequest, status_code=status.HTTP_200_OK)
-async def sing_in(
+@router.post("/sign_in", response_model=AuthRequest, status_code=status.HTTP_200_OK)
+async def sign_in(
         data: OAuth2PasswordRequestForm = Depends(),
         service: UsersService = Depends(users_service)
 ):
-    return await auth_service.sing_in(data, service)
+    return await auth_service.sign_in(data, service)
 
 
 @router.post("/me", response_model=UserDetails, status_code=status.HTTP_200_OK)
-async def sing_in(
+async def get_my_profile(
         current_user: User = Depends(auth_service.get_current_user)
 ):
     return current_user
