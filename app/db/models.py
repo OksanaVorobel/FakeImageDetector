@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float
 from sqlalchemy.orm import declarative_base, relationship
 
 from app.db.connections import engine
@@ -29,7 +29,7 @@ class Image(Base):
     __tablename__ = 'images'
     id = Column(Integer, primary_key=True, index=True)
     image_url = Column(String(256))
-    status = Column(Boolean)
+    percentage_of_falsity = Column(Float)
     user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(
@@ -44,7 +44,6 @@ class ELAImage(Base):
     __tablename__ = 'ela_images'
     id = Column(Integer, primary_key=True, index=True)
     image_url = Column(String(256))
-    status = Column(Boolean)
     original_image_id = Column(Integer, ForeignKey('images.id', ondelete='CASCADE'))
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(
