@@ -69,9 +69,9 @@ class AuthService:
     ) -> dict:
         user = await users_service.find_user_by_email(data.username)
         if not user:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
         if not self.verify_password(data.password, user.password):
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
         return {"user_id": user.id, **self.create_tokens(user.email)}
 

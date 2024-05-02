@@ -1,12 +1,14 @@
+import os
 import random
 import string
 from typing import List
 
-from fastapi import APIRouter, Depends, UploadFile, File
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
+from fastapi.responses import FileResponse
 from starlette import status
 
 from app.db.models import User
-from app.schemas.images import AddImage, ImageDetail
+from app.schemas.images import ImageDetail, PredictFakeImage
 from app.services.auth import auth_service
 from app.repositories.dependencies import ela_images_service, images_service
 from app.services.images import ImageService, ELAImageService
@@ -19,26 +21,28 @@ async def detect_fake(
         image_url: str,
         ela_service: ELAImageService = Depends(ela_images_service),
         current_user: User = Depends(auth_service.get_current_user)
-) -> dict:
+) -> PredictFakeImage:
     prediction = ela_service.predict_image(image_url)
     return prediction
 
 
 @router.post("/add", response_model=ImageDetail, status_code=status.HTTP_201_CREATED)
 async def add_images(
-        origin_image: AddImage,
-        ela_image: AddImage,
+        origin_image_url: str,
+        ela_image_url: str,
+        percentage_of_falsity: float,
         service: ImageService = Depends(images_service),
         ela_service: ELAImageService = Depends(ela_images_service),
         current_user: User = Depends(auth_service.get_current_user)
 ):
-    image_id = await service.add_image(origin_image, current_user.id)
-    await ela_service.add_image(ela_image, image_id)
+    image_id = await service.add_image(origin_image_url, percentage_of_falsity, current_user.id)
+    await ela_service.add_image(ela_image_url, image_id)
     return {
-        **origin_image.dict(),
         "id": image_id,
-        "ela_image_url": ela_image.image_url,
-        "user_id": current_user.id
+        "image_url": origin_image_url,
+        "ela_image_url": ela_image_url,
+        "user_id": current_user.id,
+        "percentage_of_falsity": percentage_of_falsity,
     }
 
 
@@ -63,8 +67,16 @@ def load_image(
     return {"origin": path, "ela": ela_path}
 
 
+@router.get('/by-path')
+def get_image_by_path(image_path: str):
+    if not os.path.exists(image_path):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    return FileResponse(image_path)
+
+
 @router.get("/{image_id}", status_code=status.HTTP_200_OK)
-async def get_image(
+async def get_image_by_id(
         image_id: int,
         service: ImageService = Depends(images_service),
         current_user: User = Depends(auth_service.get_current_user)
@@ -80,11 +92,10 @@ async def get_images(
     return await service.get_all_users_images(current_user.id)
 
 
-@router.post("/{image_id}")
-async def delete_images(
+@router.delete("/{image_id}")
+async def delete_image(
         image_id: int,
         service: ImageService = Depends(images_service),
         current_user: User = Depends(auth_service.get_current_user)
 ):
     await service.delete_image(image_id, current_user.id)
-

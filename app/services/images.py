@@ -7,7 +7,7 @@ from starlette import status
 
 from app.core.config import model_config
 from app.repositories.images import ImageRepository, ELAImageRepository
-from app.schemas.images import AddImage, ImageDetail
+from app.schemas.images import ImageDetail
 from app.utils.utils import convert_to_ela_image, load_fake_detection_model
 
 
@@ -15,8 +15,10 @@ class ImageService:
     def __init__(self, image_repo: Type[ImageRepository]):
         self.image_repo: ImageRepository = image_repo()
 
-    async def add_image(self, image: AddImage, user_id: int):
-        return await self.image_repo.add_one({**image.model_dump(), "user_id": user_id})
+    async def add_image(self, image_url: str, percentage_of_falsity: float, user_id: int):
+        return await self.image_repo.add_one(
+            {"image_url": image_url, "user_id": user_id, "percentage_of_falsity": percentage_of_falsity}
+        )
 
     async def get_users_images(self, user_id: int, limit: int, offset: int):
         return await self.image_repo.filter_by(limit, offset, {"user_id": user_id})
@@ -51,14 +53,14 @@ class ImageService:
 
 
 class ELAImageService:
-    cnn_model = load_fake_detection_model()
+    # cnn_model = load_fake_detection_model()
 
     def __init__(self, image_repo: Type[ELAImageRepository]):
         self.ela_image_repo: ELAImageRepository = image_repo()
 
-    async def add_image(self, image: AddImage, origin_image_id):
+    async def add_image(self, image_url: str, origin_image_id):
         return await self.ela_image_repo.add_one(
-            {**image.model_dump(), "original_image_id": origin_image_id}
+            {"image_url": image_url, "original_image_id": origin_image_id}
         )
 
     async def delete_image(self, image_id: int):

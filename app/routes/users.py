@@ -29,7 +29,7 @@ async def sign_in(
     return await auth_service.sign_in(data, service)
 
 
-@router.post("/me", response_model=UserDetails, status_code=status.HTTP_200_OK)
+@router.get("/me", response_model=UserDetails, status_code=status.HTTP_200_OK)
 async def get_my_profile(
         current_user: User = Depends(auth_service.get_current_user)
 ):

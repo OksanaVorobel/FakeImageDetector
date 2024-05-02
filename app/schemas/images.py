@@ -1,18 +1,13 @@
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 
 
 class BaseImage(BaseModel):
     id: int
     image_url: str
-    status: Optional[bool] = None
+    percentage_of_falsity: Optional[float] = None
     user_id: int
-
-
-class AddImage(BaseModel):
-    image_url: str
-    status: Optional[bool] = None
 
 
 class OriginalImage(BaseImage):
@@ -25,3 +20,8 @@ class ELAImage(BaseImage):
 
 class ImageDetail(BaseImage):
     ela_image_url: str
+
+
+class PredictFakeImage(BaseModel):
+    real: float
+    fake: float
