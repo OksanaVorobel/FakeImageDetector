@@ -53,7 +53,7 @@ class ImageService:
 
 
 class ELAImageService:
-    # cnn_model = load_fake_detection_model()
+    cnn_model = load_fake_detection_model()
 
     def __init__(self, image_repo: Type[ELAImageRepository]):
         self.ela_image_repo: ELAImageRepository = image_repo()
