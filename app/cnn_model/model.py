@@ -7,29 +7,13 @@ from app.core.config import model_config
 from app.utils.utils import load_fake_detection_model
 
 
-def scheduler(epoch, lr):
-    lr_0 = lr
-    lr_max = 0.001
-    lr_0_steps = 5
-    lr_max_steps = 5
-    lr_min = 0.0005
-    lr_decay = 0.9
-    if epoch < lr_0_steps:
-        lr = lr_0 + ((lr_max - lr_min) / lr_0_steps) * (epoch - 1)
-    elif epoch < lr_0_steps + lr_max_steps:
-        lr = lr_max
-    else:
-        lr = max(lr_max * lr_decay ** (epoch - lr_0_steps - lr_max_steps), lr_min)
-    return lr
-
-
 data_augmentation = tf.keras.Sequential(
     [
         layers.RandomFlip(
             "horizontal",
             input_shape=(model_config.img_height, model_config.img_width, 3)
         ),
-        # yers.RandomRotation(0.01),
+        layers.RandomRotation(0.01),
         layers.RandomZoom(0.1),
     ])
 
