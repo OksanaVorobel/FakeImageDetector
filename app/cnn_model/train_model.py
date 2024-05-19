@@ -8,6 +8,7 @@ from app.cnn_model.model import model
 from app.cnn_model.data_preprocessing import get_ela_split_data
 from app.core.config import model_config
 
+
 XX, YY = get_ela_split_data()
 X_train, X_val, Y_train, Y_val = train_test_split(XX, YY, test_size=0.2, random_state=5)
 del XX, YY
@@ -45,4 +46,4 @@ def train_model(model, epochs=model_config.epochs, batch_size=model_config.batch
     plt.show()
 
 
-# train_model(model)
+train_model(model)

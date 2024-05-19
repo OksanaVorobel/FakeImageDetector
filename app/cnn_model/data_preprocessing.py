@@ -59,6 +59,7 @@ def convert_origin_image(path):
     normalized_image = resized_image / 255.0
     return normalized_image
 
+
 def get_ela_split_data() -> tuple[np.array, np.array]:
     if os.path.exists("./cnn_model/ela_values.npy") and os.path.exists("./cnn_model/ela_labels.npy"):
         logging.info("loading dataset...")
